@@ -1,0 +1,50 @@
+{% extends "ineed/base.html" %}
+{% load crispy_forms_tags %}
+{% block content %}
+{% load static %}
+
+{% if user.is_authenticated %}
+<div class="content-section">
+    <form method="POST" class="post-form" enctype="multipart/form-data">{% csrf_token %}
+        <fieldset class="form-row">
+            <div class="form-group"><label class="exampleFormControlFile1">Write your concern or need here -</label>
+            </div>
+
+            <div class="form-group"><textarea class="form-control" rows="4" cols="80" name="content"></textarea></div>
+
+            <div class="custom-file">
+                <input type="file" class="custom-file-input" id="myImage" name="myImage" onchange="previewFile()">
+                <label class="custom-file-label" id="myImage">Choose file</label>
+            </div>
+            <div class="form-group"></div>
+            <div class="form-row">
+                <div class="form-group col-md-6">
+                    <label><img src="" height="50"></label>
+                </div>
+                <div class="form-group col-md-4">
+                    <label></label>
+                </div>
+                <div class="form-group col-md-2 text-right">
+                    <button class="btn btn-primary" type="'submit">Save</button>
+                </div>
+            </div>
+
+        </fieldset>
+    </form>
+</div>
+{% else %}
+<div class="content-section">Please <a href="{% url 'login' %}">Login</a> to post</div>
+{% endif %}
+{% for post in posts %}
+<div class='content-section'>
+    <h2>{{ post.author }} says,</h2>
+    <p>{{ post.content }}</p>
+    <p>Posted on {{ post.date_posted }}</p>
+    {% if post.myImage.url != '' %}
+        <div class="media"><img class="rounded-circle account-img" src={{post.myImage.url}}></div>
+    {% endif %}
+    <a href="/providehelp" class="btn btn-primary">Provide Help</a>
+
+</div>
+{% endfor %}
+{% endblock content %}
