@@ -25,7 +25,7 @@
                     <label></label>
                 </div>
                 <div class="form-group col-md-2 text-right">
-                    <button class="btn btn-primary" type="'submit">Save</button>
+                    <button class="btn btn-primary" name="main_form" type="'submit">Save</button>
                 </div>
             </div>
 
@@ -37,14 +37,28 @@
 {% endif %}
 {% for post in posts %}
 <div class='content-section'>
-    <h2>{{ post.author }} says,</h2>
-    <p>{{ post.content }}</p>
-    <p>Posted on {{ post.date_posted }}</p>
+    <div class="font-weight-bold" style="font-size:20px;">{{ post.author }} says,</div>
+    <div class="font-weight-normal">{{ post.content }}</div>
+    <div class="text-muted" style="font-size: 12px;">Posted on {{ post.date_posted }}</div>
     {% if post.myImage.url != '' %}
         <div class="media"><img class="rounded-circle account-img" src={{post.myImage.url}}></div>
     {% endif %}
-    <a href="/providehelp" class="btn btn-primary">Provide Help</a>
+    <form method="POST" class="post-form" name="comment_form" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="form-group"><textarea class="form-control" rows="2" cols="80" name="body"></textarea></div>
+        <input type="hidden" name="comcomment" value={{post.pk}}>
+        <button class="btn btn-primary" name="comment_form" type="submit">Add comment</button>
+    </form>
 
+    <!-- Comment with nested comments -->
+    {% for comment in comments %}
+        {% if post.pk == comment.comcomment_id %}
+        <div class="comment" style="background-color: powderblue">
+            <p class="info">{{ comment.comauthor }} | {{ comment.created }}</p>
+            <p>{{ comment.body }}</p>
+        </div>
+        {% endif %}
+    {% endfor %}
 </div>
 {% endfor %}
 {% endblock content %}

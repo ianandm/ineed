@@ -1,12 +1,15 @@
 from django.shortcuts import render, redirect
 from django.http import HttpResponse
-from .models import Post
-from .forms import PostForm
+from django.shortcuts import get_object_or_404
+from .models import Post, Comment
+from .forms import PostForm, CommentForm
 
 
 def home(request):
-    if request.method == "POST":
-        form = PostForm(request.POST, request.FILES)
+    form = PostForm(request.POST, request.FILES or None)
+    comment_form = CommentForm(request.POST, request.FILES or None)
+
+    if request.method == "POST" and 'main_form' in request.POST:
         if form.is_valid():
             post = form.save(commit=False)
             post.author = request.user
@@ -17,11 +20,24 @@ def home(request):
                 post.myImage = None
             post.save()
             return redirect('ineed-home')
+
+    elif request.method == "POST" and 'comment_form' in request.POST:
+        # comment has been added
+        post_id = request.POST.get('comcomment')
+        posts = Post.objects.get(id=post_id)
+        if comment_form.is_valid():
+            new_comment = comment_form.save(commit=False)
+            new_comment.comcomment = posts
+            new_comment.comauthor = request.user
+            new_comment.save()
+            return redirect('ineed-home')
     else:
         form = PostForm()
+        comment_form = CommentForm()
+        comments = Comment.objects.order_by("-created")
         posts = Post.objects.order_by("-date_posted")
 
-    return render(request, 'ineed/home.html', {'posts': posts, 'form': form})
+    return render(request, 'ineed/home.html', {'posts': posts, 'form': form, 'comment_form': comment_form, 'comments': comments})
 
 
 def about(request):
